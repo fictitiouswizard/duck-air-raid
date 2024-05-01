@@ -1,6 +1,7 @@
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
+use crate::auth::discord::components::DiscordLoginButton;
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -37,6 +38,7 @@ fn HomePage() -> impl IntoView {
     view! {
         <h1>"Welcome to Leptos!"</h1>
         <button on:click=on_click>"Click Me: " {count}</button>
+        <DiscordLoginButton />
     }
 }
 

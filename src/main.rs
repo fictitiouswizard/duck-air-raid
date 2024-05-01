@@ -1,16 +1,3 @@
-mod models;
-
-#[cfg(feature = "ssr")]
-use {
-    sqlx::PgPool,
-};
-
-#[cfg(feature = "ssr")]
-#[derive(Clone)]
-pub struct AppState {
-    db: PgPool
-}
-
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -20,24 +7,10 @@ async fn main() -> std::io::Result<()> {
     use leptos_actix::{generate_route_list, LeptosRoutes};
     use duck_air_raid::app::*;
     use dotenv::dotenv;
-    use std::env;
+    use duck_air_raid::server_state::AppState;
+    use duck_air_raid::auth::app_config as auth_config;
 
     let _ = dotenv();
-
-    let db_username = env::var("DB_USERNAME").expect("Unable to find DB_USERNAME env var");
-    let db_password = env::var("DB_PASSWORD").expect("unable to find DB_PASSWORD env var");
-    let db_server = env::var("DB_SERVER").expect("unable to find DB_SERVER env var");
-    let db_port = env::var("DB_PORT").expect("unable to find DB_PORT env var");
-    let db_name = env::var("DB_NAME").expect("unable to find DB_NAME env var");
-
-    let postgres_url = format!(
-        "postgres://{}:{}@{}:{}/{}",
-        db_username,
-        db_password,
-        db_server,
-        db_port,
-        db_name
-    );
 
     let conf = get_configuration(None).await.unwrap();
     let addr = conf.leptos_options.site_addr;
@@ -45,9 +18,8 @@ async fn main() -> std::io::Result<()> {
     let routes = generate_route_list(App);
     println!("listening on http://{}", &addr);
 
-    let app_state = web::Data::new(AppState{
-        db: PgPool::connect(&postgres_url).await.expect("Unable to connect to db")
-    });
+    let app_state = AppState::build().await;
+    let app_state = web::Data::new(app_state);
 
     HttpServer::new(move || {
         let leptos_options = &conf.leptos_options;
@@ -60,6 +32,7 @@ async fn main() -> std::io::Result<()> {
             .service(Files::new("/assets", site_root))
             // serve the favicon from /favicon.ico
             .service(favicon)
+            .configure(auth_config::config_app)
             .leptos_routes(leptos_options.to_owned(), routes.to_owned(), App)
             .app_data(web::Data::new(leptos_options.to_owned()))
             .app_data(app_state.clone())

@@ -22,6 +22,9 @@ uuid = { version = "1.7.0", features = ["fast-rng", "v4", "macro-diagnostics", "
 serde = { version = "1.0.197", features = ["derive"]}
 serde_json = "1.0.114"
 dotenv = "0.15.0"
+orion = { version = "0.17.6", optional = true }
+bcrypt = { version = "0.15.1", optional = true }
+reqwest = { version = "0.12.4", features = ["json"] }
 
 [dev-dependencies]
 sqlx = { version = "0.7", features = [ "runtime-tokio", "tls-rustls", "postgres", "uuid", "chrono" ]}
@@ -35,6 +38,8 @@ ssr = [
   "dep:actix-web",
   "dep:leptos_actix",
   "dep:sqlx",
+  "dep:orion",
+  "dep:bcrypt",
   "leptos/ssr",
   "leptos_meta/ssr",
   "leptos_router/ssr",
