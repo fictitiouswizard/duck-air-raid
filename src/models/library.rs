@@ -29,7 +29,7 @@ pub struct Library {
     // Postal code of the library's location
     pub postal_code: String,
     // Current point balance of the library
-    pub point_balance: u64,
+    pub point_balance: i64,
     // Identifier of the library system to which the library belongs
     pub library_system_id: Uuid,
 }
