@@ -1,0 +1,24 @@
+version: '1.0'
+
+services:
+  app:
+    image: valkey/valkey:7.2
+    hostname: session_store
+    container_name: session_store
+    restart: always
+    volumes:
+      - session_store_db:/data
+    env_file: .env
+    networks:
+      - duck_air_raid
+    ports:
+      - 6379:6379
+#    depends_on:
+#      - db
+
+volumes:
+  session_store_db:
+
+networks:
+  duck_air_raid:
+    driver: bridge

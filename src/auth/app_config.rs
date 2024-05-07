@@ -12,5 +12,9 @@ pub fn config_app(cfg: &mut web::ServiceConfig) {
                 web::resource("/discord")
                     .route(web::get().to(dep::handle_discord_code))
             )
+            .service(
+                web::resource("/session")
+                    .route(web::get().to(dep::handle_session_test))
+            )
     );
 }

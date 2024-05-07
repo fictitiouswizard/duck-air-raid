@@ -1,3 +1,5 @@
+use actix_session::config::PersistentSession;
+
 #[cfg(feature = "ssr")]
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -9,6 +11,9 @@ async fn main() -> std::io::Result<()> {
     use dotenv::dotenv;
     use duck_air_raid::server_state::AppState;
     use duck_air_raid::auth::app_config as auth_config;
+    use std::env;
+    use actix_session::SessionMiddleware;
+    use actix_session::storage::RedisSessionStore;
 
     let _ = dotenv();
 
@@ -20,6 +25,10 @@ async fn main() -> std::io::Result<()> {
 
     let app_state = AppState::build().await;
     let app_state = web::Data::new(app_state);
+    let session_key: cookie::Key = cookie::Key::from(env::var("SESSION_KEY").expect("session key env var not found").as_bytes());
+    let valkey_store = RedisSessionStore::new("redis://127.0.0.1:6379")
+        .await.expect("unable to connect to valkey");
+
 
     HttpServer::new(move || {
         let leptos_options = &conf.leptos_options;
@@ -33,6 +42,15 @@ async fn main() -> std::io::Result<()> {
             // serve the favicon from /favicon.ico
             .service(favicon)
             .configure(auth_config::config_app)
+            .wrap(
+                SessionMiddleware::builder(valkey_store.clone(), session_key.clone())
+                    .cookie_secure(false)
+                    .session_lifecycle(
+                        PersistentSession::default()
+                            .session_ttl(cookie::time::Duration::weeks(2)),
+                    )
+                    .build()
+            )
             .leptos_routes(leptos_options.to_owned(), routes.to_owned(), App)
             .app_data(web::Data::new(leptos_options.to_owned()))
             .app_data(app_state.clone())

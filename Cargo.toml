@@ -25,6 +25,7 @@ dotenv = "0.15.0"
 orion = { version = "0.17.6", optional = true }
 bcrypt = { version = "0.15.1", optional = true }
 reqwest = { version = "0.12.4", features = ["json"] }
+actix-session = { version = "0.9.0", optional = true, features = ["redis-rs-session"] }
 
 [dev-dependencies]
 sqlx = { version = "0.7", features = [ "runtime-tokio", "tls-rustls", "postgres", "uuid", "chrono" ]}
@@ -40,6 +41,7 @@ ssr = [
   "dep:sqlx",
   "dep:orion",
   "dep:bcrypt",
+  "dep:actix-session",
   "leptos/ssr",
   "leptos_meta/ssr",
   "leptos_router/ssr",
