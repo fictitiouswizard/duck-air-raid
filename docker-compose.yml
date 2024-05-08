@@ -1,23 +1,49 @@
 version: '1.0'
 
 services:
-  app:
-    image: valkey/valkey:7.2
+  session:
+    image: docker.io/valkey/valkey:7.2
     hostname: session_store
     container_name: session_store
     restart: always
     volumes:
       - session_store_db:/data
-    env_file: .env
+    env_file: ./.env
     networks:
       - duck_air_raid
     ports:
       - 6379:6379
 #    depends_on:
 #      - db
+  db:
+    image: docker.io/postgres:16.2-bullseye
+    hostname: postgres_db
+    container_name: postgres_db
+    restart: always
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d
+    env_file: ./.env
+    networks:
+      - duck_air_raid
+    shm_size: 128mb
+    ports:
+      - 5555:5432
+
+  admin:
+    image: docker.io/dpage/pgadmin4
+    hostname: pgadmin
+    container_name: pgadmin
+    restart: always
+    env_file: ./.env
+    networks:
+      - duck_air_raid
+    ports:
+      - 5050:80
 
 volumes:
   session_store_db:
+  postgres_db:
 
 networks:
   duck_air_raid:

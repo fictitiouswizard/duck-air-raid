@@ -6,9 +6,9 @@ use {
     actix_session::Session,
 };
 
-#[server(GetMe, "/api/Get")]
+#[server(GetMe, "/api/me")]
 pub async fn get_me() -> Result<String, ServerFnError> {
-    let session: Session = extract().await.unwrap();
+    let session: Session = extract().await?;
     println!("{:?}", session.status());
     if let Some(email) = session.get::<String>("test").unwrap() {
         println!("{}", email);
